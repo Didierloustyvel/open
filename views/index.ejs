@@ -387,8 +387,6 @@
             article.appendChild(div_like)
             let titre = value[i][2]
             let h2 = document.createElement('h2')
-            h2.setAttribute('contentEditable', 'true')
-            h2.setAttribute('onclick', 'update_Titre(this.id)')
             article.appendChild(h2)
             h2.innerHTML = titre
             h2.id = "h" + id
@@ -396,9 +394,7 @@
             div_paragraphe = document.createElement('div')
             article.appendChild(div_paragraphe)
             div_paragraphe.innerHTML = paragraphe
-            div_paragraphe.setAttribute('contentEditable', 'true')
             div_paragraphe.id = "t" + id
-            div_paragraphe.setAttribute('onclick', 'update_Paragraphe(this.id)')
             app.appendChild(article)
 
         }
