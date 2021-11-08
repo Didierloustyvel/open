@@ -46,13 +46,10 @@ button.bt {
     color: gray;
 }
 
-[role="selected"] {
-    color: black!important;
-    font-weight: bold;
-}
 
 button.bt:hover {
     background-color: #efefefba;
+    color : black;
 }
 
 button.bt:active {
@@ -60,6 +57,10 @@ button.bt:active {
     transform: translateY(1px);
 }
 
+[role="selected"] {
+    color: black!important;
+    font-weight: bold;
+}
 div#connexion {
     display: flex;
     margin: auto;
