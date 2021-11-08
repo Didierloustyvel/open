@@ -130,6 +130,7 @@ div#edit {
     transform: translateY(1px);
 }
 div#left {
+    top: 62px;
     position: fixed;
 }
 .left {

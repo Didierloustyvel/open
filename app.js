@@ -1,5 +1,4 @@
   var PORT = process.env.PORT || 8080
-const { Socket } = require("dgram");
   const express = require("express")
   const http = require("http");
   const app = express()
@@ -35,11 +34,18 @@ const { Socket } = require("dgram");
 
   const io = require("socket.io")(server);
   io.sockets.on('connection', async (socket) => {
-    socket.on('coockie_user', async (value) => {
-       if(value == "pass='admin'"){
-        socket.emit('reset');
 
-        client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
+    socket.on('delete_article', async (value) => {
+      client.query("DELETE FROM public.articles WHERE id =" + value + "");
+      console.log("article suprimmer")
+    });
+
+    socket.on('co', async (value) => {
+      console.log('ok')
+      if(value == "pass='admin'"){
+        console.log('administrateur connecter')
+     
+         client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
           dataTable = []
           if (err) throw err;
           for (let row of res.rows) {
@@ -59,16 +65,14 @@ const { Socket } = require("dgram");
           socket.emit('datAmin', dataTable)
           console.log('send data to admin')
         })
-       }
+    }
     });
-    socket.on('delete_article', async (value) => {
-      client.query("DELETE FROM public.articles WHERE id =" + value + "");
-      console.log("article suprimmer")
-    });
+
     socket.on('session', async (value) => {
+      console.log("ok")
         if(value[0] == "loustyveldidier88@gmail.com" && value[1] == "admin"){
             console.log('administrateur connecter')
-             socket.emit('reset');
+           
              socket.emit('coockie', "pass='admin'");
              client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
               dataTable = []
@@ -90,10 +94,11 @@ const { Socket } = require("dgram");
               socket.emit('datAmin', dataTable)
               console.log('send data to admin')
             })
-        }else{
-          console.log(value)
         }
+        
+    
     });
+
     client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
       dataTable = []
       if (err) throw err;
@@ -101,6 +106,7 @@ const { Socket } = require("dgram");
 
         let buffTitre = Buffer.from(row.titre, 'base64');
         let titre = buffTitre.toString('utf-8');
+        console.log(titre)
         let buff = Buffer.from(row.paragraphe, 'base64');
         let paragraphe = buff.toString('utf-8');
         let like = row.like
@@ -118,38 +124,25 @@ const { Socket } = require("dgram");
     socket.on('send', async (value) => {
       titre = Buffer.from(value[0]).toString('base64')
       paragraphe = Buffer.from(value[1]).toString('base64')
-     
       client.query("INSERT INTO public.articles( titre, paragraphe,  \"like\",categorie) VALUES ( '" + [titre] + "','" + [paragraphe] + "','" + [0] + "','" + [value[3]] + "')");
       console.log('Enregistrer en bdd')
-
     });
     socket.on('update_Titre', async (value) => {
       id = value[0]
       titre = Buffer.from(value[1]).toString('base64')
-
       client.query("UPDATE public.articles SET titre='" + [titre] + "' WHERE id=" + id + "");
-
-
     });
 
     socket.on('update_Paragraphe', async (value) => {
       id = value[0]
-
       paragraphe = Buffer.from(value[1]).toString('base64')
-
       client.query("UPDATE public.articles SET paragraphe='" + [paragraphe] + "' WHERE id=" + id + "");
-
-
     });
-
-
-
     socket.on('plus', async (value) => {
       console.log(value)
       id = value[0]
       plus = value[1]
       client.query("UPDATE public.articles SET \"like\"=" + plus + " WHERE id =" + id + "");
-
     });
     socket.on('moin', async (value) => {
       console.log(id)
