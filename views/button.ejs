@@ -1,0 +1,29 @@
+<div id="cat">
+    <button onclick="onChange(this.id)" id="Article" class="bt" role="selected">Article</button>
+    <button onclick="onChange(this.id)" id="Code" class="bt" role="no-selected">Code</button>
+    <button onclick="onChange(this.id)" id="Javascript" class="bt" role="no-selected">Javascript</button>
+    <button onclick="onChange(this.id)" id="CSS" class="bt" role="no-selected">CSS</button>
+    <button onclick="onChange(this.id)" id="SQL" class="bt" role="no-selected">HTML</button>
+    <button onclick="onChange(this.id)" id="Node.js" class="bt" role="no-selected">Node.js</button>
+    <button onclick="onChange(this.id)" id="Puppeteer" class="bt" role="no-selected">Puppeteer</button>
+    <button onclick="onChange(this.id)" id="Service" class="bt" role="no-selected">Services</button>
+    <button onclick="onChange(this.id)" id="SEO" class="bt" role="no-selected">Puppeteer</button>
+    <button onclick="onChange(this.id)" id="Campagne publicitaire" class="bt" role="no-selected">Campagne publicitaire</button>
+</div>
+<script>
+function onChange(id){
+    Array.from(document.querySelectorAll('[role="no-selected"]'), 
+           e => e.setAttribute('role','no-selected'))
+    Array.from(document.querySelectorAll('[role="selected"]'), 
+           e => e.setAttribute('role','no-selected'))
+    document.querySelector('#'+id+'').setAttribute('role','selected')
+    Array.from(document.querySelectorAll('[cat]'), 
+           e => e.setAttribute('style','display:none'))
+    Array.from(document.querySelectorAll('[cat="'+id+'"]'), 
+           e => e.setAttribute('style','display:'))
+
+        
+       
+}
+
+</script>

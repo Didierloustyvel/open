@@ -1,0 +1,17 @@
+<div id="edit" style="display:none">
+    <div id="titre" contentEditable="true">Entrer votre titre</div>
+    <div id="paragraphe" contentEditable="true">Entrer votre texte</div>
+    <button id="send" class="bt" onclick="send()">Envoyer</button>
+</div>
+
+<script>
+    function send() {
+        titre = document.querySelector('#titre').textContent
+        paragraphe = document.querySelector('#paragraphe').innerHTML
+        like = 0;
+        selected = document.querySelector('[role="selected"]').textContent
+        value = [titre,paragraphe,like,selected]
+        socket.emit('send', value);
+        location.reload()
+    }
+</script>

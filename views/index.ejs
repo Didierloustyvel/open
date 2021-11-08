@@ -1,0 +1,302 @@
+<%- include('header'); -%>
+
+
+
+<%- include('nav'); -%>
+
+<%- include('button'); -%>
+<%- include('edit'); -%>
+<div id="left"></div>
+<div id="app">
+
+
+
+</div>
+
+<script>
+    socket.emit('coockie_user', document.cookie);
+
+    socket.on('coockie', async (value) => {
+        document.cookie = value
+    });
+    socket.on('reset', async (value) => {
+        app.innerHTML = ""
+    });
+
+    function trie(id) {
+        Array.from(document.querySelectorAll('article'),
+            e => e.style.display = "none")
+        id = id.replace('left', 'a')
+        document.querySelector('#' + id + '').style.display = ""
+    }
+
+    socket.on('datAmin', async (value) => {
+    console.log(value)
+    document.querySelector('#bt_connexion').innerHTML = "déconnexion"
+    for (i = 0; i < value.length; i++) {
+        id = value[i][0]
+        let div_Gauche = document.createElement('div')
+        div_Gauche.innerHTML = value[i][2]
+        div_Gauche.classList.add('left')
+        div_Gauche.id = "left" + id
+        div_Gauche.setAttribute('onclick', 'trie(this.id)')
+        document.querySelector('#left').appendChild(div_Gauche)
+
+        let div_delete = document.createElement('div')
+        div = document.createElement('div')
+        let article = document.createElement('article')
+        let like = value[i][1]
+
+        article.id = "a" + id
+        article.setAttribute('cat', value[i][4])
+        div_like = document.createElement('div')
+        div_plus = document.createElement('div')
+        div_moin = document.createElement('div')
+        div_nombre_like = div
+        div_plus.setAttribute('onclick', 'plus(this.id)')
+        div_moin.setAttribute('onclick', 'moin(this.id)')
+        div_like.id = id
+        div_like.classList.add("like")
+        div_plus.id = "p" + id
+        div_moin.id = "m" + id
+        div_nombre_like.id = "nb" + id
+        div_plus.innerHTML = "+"
+        div_moin.innerHTML = "-"
+        div_nombre_like.innerHTML = like
+        div_like.appendChild(div_plus)
+        div_like.appendChild(div_nombre_like)
+        div_like.appendChild(div_moin)
+        article.appendChild(div_delete)
+        div_delete.id = "p" + id
+        div_delete.setAttribute('onclick', 'delete_(this.id)')
+        article.appendChild(div_like)
+        let titre = value[i][2]
+        let h2 = document.createElement('h2')
+        h2.setAttribute('contentEditable', 'true')
+        h2.setAttribute('onclick', 'update_Titre(this.id)')
+        article.appendChild(h2)
+        h2.innerHTML = titre
+        h2.id = "h" + id
+        let paragraphe = value[i][3]
+        div_paragraphe = document.createElement('div')
+        article.appendChild(div_paragraphe)
+        div_paragraphe.innerHTML = paragraphe
+        div_paragraphe.setAttribute('contentEditable', 'true')
+        div_paragraphe.id = "t" + id
+        div_paragraphe.setAttribute('onclick', 'update_Paragraphe(this.id)')
+        app.appendChild(article)
+        div_delete.innerHTML = "x"
+        div_delete.id = id
+        div_delete.classList.add('del')
+    }
+    x = Array.from(document.querySelectorAll('h2'),
+        e => e.textContent)
+    countries = x
+
+    function autocomplete(inp, arr) {
+        /*the autocomplete function takes two arguments,
+        the text field element and an array of possible autocompleted values:*/
+        var currentFocus;
+        /*execute a function when someone writes in the text field:*/
+        inp.addEventListener("input", function (e) {
+            var a, b, i, val = this.value;
+            /*close any already open lists of autocompleted values*/
+            closeAllLists();
+            if (!val) {
+                return false;
+            }
+            currentFocus = -1;
+            /*create a DIV element that will contain the items (values):*/
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            /*append the DIV element as a child of the autocomplete container:*/
+            this.parentNode.appendChild(a);
+            /*for each item in the array...*/
+            for (i = 0; i < arr.length; i++) {
+                /*check if the item starts with the same letters as the text field value:*/
+                if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    /*create a DIV element for each matching element:*/
+                    b = document.createElement("DIV");
+                    /*make the matching letters bold:*/
+                    b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                    b.innerHTML += arr[i].substr(val.length);
+                    /*insert a input field that will hold the current array item's value:*/
+                    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                    /*execute a function when someone clicks on the item value (DIV element):*/
+                    b.addEventListener("click", function (e) {
+                        /*insert the value for the autocomplete text field:*/
+                        inp.value = this.getElementsByTagName("input")[0].value;
+                        /*close the list of autocompleted values,
+                        (or any other open lists of autocompleted values:*/
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                }
+            }
+        });
+        /*execute a function presses a key on the keyboard:*/
+        inp.addEventListener("keydown", function (e) {
+            var x = document.getElementById(this.id + "autocomplete-list");
+            if (x) x = x.getElementsByTagName("div");
+            if (e.keyCode == 40) {
+                /*If the arrow DOWN key is pressed,
+                increase the currentFocus variable:*/
+                currentFocus++;
+                /*and and make the current item more visible:*/
+                addActive(x);
+            } else if (e.keyCode == 38) { //up
+                /*If the arrow UP key is pressed,
+                decrease the currentFocus variable:*/
+                currentFocus--;
+                /*and and make the current item more visible:*/
+                addActive(x);
+            } else if (e.keyCode == 13) {
+                /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                Array.from(document.querySelectorAll('li'),
+                    e => e.setAttribute('style', 'display:none'))
+                e.preventDefault();
+                t = document.querySelector('#myInput').value
+                if (currentFocus > -1) {
+                    /*and simulate a click on the "active" item:*/
+                    if (x) x[currentFocus].click();
+                }
+            }
+        });
+
+        function addActive(x) {
+            /*a function to classify an item as "active":*/
+            if (!x) return false;
+            /*start by removing the "active" class on all items:*/
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            /*add class "autocomplete-active":*/
+            x[currentFocus].classList.add("autocomplete-active");
+        }
+
+        function removeActive(x) {
+            /*a function to remove the "active" class from all autocomplete items:*/
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+            }
+        }
+
+        function closeAllLists(elmnt) {
+            /*close all autocomplete lists in the document,
+            except the one passed as an argument:*/
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+        /*execute a function when someone clicks in the document:*/
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+    }
+    autocomplete(document.getElementById("myInput"), countries);
+    Array.from(document.querySelectorAll('li>h2'),
+        e => e.setAttribute('contentEditable', 'true'))
+    Array.from(document.querySelectorAll('li>h2'),
+        e => e.setAttribute('onclick', 'update_Titre(this.id)'))
+
+    });
+
+
+
+    function update_Paragraphe(id) {
+        document.querySelector('#' + id).addEventListener('keyup', () => {
+            el = document.querySelector('#' + id).innerHTML
+
+            ids = id.replace('t', '')
+            value = [ids, el]
+            socket.emit('update_Paragraphe', value);
+        })
+    }
+
+    function update_Titre(id) {
+        document.querySelector('#' + id).addEventListener('keyup', () => {
+            el = document.querySelector('#' + id).innerHTML
+
+            ids = id.replace('h', '')
+            value = [ids, el]
+            socket.emit('update_Titre', value);
+        })
+    }
+
+
+    function delete_(id) {
+        id = id.replace('p', 'a')
+        document.querySelector('#a' + id).remove()
+        socket.emit('delete_article', id);
+    }
+
+    socket.on('data', async (value) => {
+        console.log(value)
+        for (i = 0; i < value.length; i++) {
+            div = document.createElement('div')
+            let article = document.createElement('article')
+            article.setAttribute('cat', value[i][4])
+
+            let like = value[i][1]
+            id = value[i][0]
+            div_like = document.createElement('div')
+            div_plus = document.createElement('div')
+            div_moin = document.createElement('div')
+            div_nombre_like = div
+            div_plus.setAttribute('onclick', 'plus(this.id)')
+            div_moin.setAttribute('onclick', 'moin(this.id)')
+
+            div_like.id = id
+            div_like.classList.add("like")
+            div_plus.id = "p" + id
+            div_moin.id = "m" + id
+            div_nombre_like.id = "nb" + id
+            div_plus.innerHTML = "+"
+            div_moin.innerHTML = "-"
+            div_nombre_like.innerHTML = like
+            div_like.appendChild(div_plus)
+            div_like.appendChild(div_nombre_like)
+            div_like.appendChild(div_moin)
+
+            article.appendChild(div_like)
+            let titre = value[i][2]
+            let h2 = document.createElement('h2')
+            article.appendChild(h2)
+            h2.innerHTML = titre
+
+            let paragraphe = value[i][3]
+            div_paragraphe = document.createElement('div')
+            article.appendChild(div_paragraphe)
+            div_paragraphe.innerHTML = paragraphe
+
+            app.appendChild(article)
+        }
+
+    })
+
+    function plus(id) {
+        id = id.replace('p', '')
+        el = document.querySelector('#nb' + id + '')
+        x = parseInt(el.innerHTML)
+        y = x + 1
+        el.innerHTML = y
+        value = [id, el.innerHTML]
+        socket.emit('plus', value);
+    }
+
+    function moin(id) {
+        id = id.replace('m', '')
+        el = document.querySelector('#nb' + id + '')
+        x = parseInt(el.innerHTML)
+        y = x - 1
+        el.innerHTML = y
+        value = [id, el.innerHTML]
+        socket.emit('moin', value);
+    }
+</script>
+
+<%- include('footer'); -%>

@@ -1,0 +1,68 @@
+<div id="nav">
+
+    <img class="logo" src='assets/images/slood.png'>
+
+    <form autocomplete="off" action="/action_page.php">
+        <div class="autocomplete" style="width:300px;">
+            <input id="myInput" onkeyup="filter_liste()" type="text" name="myCountry"
+                placeholder="Effectuer votre recherche.">
+        </div>
+
+    </form>
+    <button class="bt" onclick="display_question()">Ecrire un article</button>
+    <div id="connexion">
+        <div id="Adresse"><input id="mail" type="mail" placeholder="Entrer Votre Mail"></div>
+        <div id="pass"><input id="password" type="password" placeholder="Entrer Votre password"></div>
+
+    </div>
+    <button id="bt_connexion" class="bt co" onclick="connexion()">connexion</button>
+</div>
+
+
+
+
+<script>
+    function filter_liste() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById('myInput');
+        filter = input.value.toUpperCase();
+        li = document.querySelectorAll('article')
+
+        for (i = 0; i < li.length; i++) {
+            t = li[i];
+            txtValue = t.textContent || t.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+
+    }
+
+    function display_question() {
+        let el = document.querySelector('#edit')
+        x = el.getAttribute('style')
+        if (el.getAttribute('style') == "display:none") {
+            el.setAttribute('style', 'display:')
+        } else {
+            el.setAttribute('style', 'display:none')
+        }
+    }
+
+    function connexion() {
+        if(document.querySelector('#bt_connexion').innerHTML=="déconnexion"){
+            document.cookie = "pass='null'"
+            location.reload()
+        }
+        if(document.querySelector('#bt_connexion').innerHTML=="connexion"){
+        let mail = document.querySelector('#mail').value
+        let password = document.querySelector('#password').value
+        let value = [mail, password]
+        socket.emit('session', value);
+        }
+        
+
+    }
+    
+</script>
