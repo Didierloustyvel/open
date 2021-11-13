@@ -174,7 +174,8 @@ socket.on('file', async (value) => {
     socket.emit('co', document.cookie);
 
     socket.on('datAmin', async (value) => {
-
+        document.querySelector('#choix').style.display = ""
+        document.querySelector('#upload').style.display = ""
         document.querySelector('#bt_connexion').innerHTML = "déconnexion"
         left = document.querySelector('#left')
         app.innerHTML = ""
@@ -284,6 +285,9 @@ socket.on('file', async (value) => {
 
     socket.on('data', async (value) => {
         console.log(value)
+        document.querySelector('#choix').style.display = "none"
+        document.querySelector('#upload').style.display = "none"
+
         for (i = 0; i < value.length; i++) {
             id = value[i][0]
             let div_Gauche = document.createElement('div')
@@ -361,6 +365,17 @@ socket.on('file', async (value) => {
         value = [id, el.innerHTML]
         socket.emit('moin', value);
     }
+    socket.on('cookie', async (value) => {
+        document.cookie = value
+    });
+    socket.emit('connects', document.cookie);
+
+socket.on('clear', async (value) => {
+    document.querySelector('#rigth').innerHTML = ""
+    document.querySelector('#left').innerHTML = ""
+    document.querySelector('#app').innerHTML = ""
+
+});
 </script>
 
 <%- include('footer'); -%>

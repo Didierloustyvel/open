@@ -107,11 +107,15 @@ app.post(
       console.log("article suprimmer")
     });
 
-    socket.on('co', async (value) => {
-      console.log('ok')
-      if (value == "pass='admin'") {
+    socket.on('connects', async (value) => {
+      if(value == "pass='admin'"){
+
+    
+      await socket.emit('clear', 'value');
+      console.log("ok")
         console.log('administrateur connecter')
 
+        socket.emit('coockie', "pass='admin'");
         client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
           dataTable = []
           if (err) throw err;
@@ -132,7 +136,9 @@ app.post(
           socket.emit('datAmin', dataTable)
           console.log('send data to admin')
         })
+      
       }
+
     });
 
     socket.on('session', async (value) => {
