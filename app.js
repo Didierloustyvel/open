@@ -1,9 +1,11 @@
   var PORT = process.env.PORT || 8080
   const express = require("express")
   const http = require("http");
+  const multer = require("multer");
   const app = express()
   const server = http.createServer(app);
-
+  const path = require('path')
+  const fs = require('fs')
 
   app.set("views", "./views")
   app.set("view engine", "ejs")
@@ -12,7 +14,45 @@
     res.render("index.ejs")
   })
 
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'public/uploads');
+    },
+    filename: (req, file, cb) => {
+      const {
+        originalname
+      } = file;
+      cb(null, originalname);
+    }
+  });
+  const upload = multer({
+    storage
+  })
+const handleError = (err, res) => {
+  res.render("index.ejs")
 
+};
+
+
+app.post(
+  "/upload",
+  upload.single("file" /* name attribute of <file> element in your form */),
+  (req, res) => {
+    const tempPath = req.file.path;
+    const targetPath = path.join(__dirname, "./public/uploads");
+
+    // if (
+      path.extname(req.file.originalname).toLowerCase() === "."
+      // ) {
+      fs.rename(tempPath, targetPath, err => {
+        if (err) return handleError(err, res);
+
+        
+        res.render("index.ejs")
+
+      });
+  }
+);
 
   const {
     Client
@@ -32,8 +72,35 @@
   client.connect();
 
 
+
   const io = require("socket.io")(server);
   io.sockets.on('connection', async (socket) => {
+
+    const directoryPath = path.join(__dirname, 'public/uploads');
+    //passsing directoryPath and callback function
+    fs.readdir(directoryPath, function (err, files) {
+      //handling error
+      if (err) {
+        return console.log('Unable to scan directory: ' + err);
+      }
+      //listing all files using forEach
+      files.forEach(function (file) {
+        // Do whatever you want to do with the file
+        socket.emit('file', file);
+
+      });
+    })
+      
+  socket.on('deleteFile', async (value) => {
+     socket.emit('dl', value);
+    fs.unlink("./public/uploads/" + value, (err) => {
+      if (err) {
+        console.log("failed to delete local image:" + err);
+      } else {
+        console.log('successfully deleted local image');
+      }
+    })
+  });
 
     socket.on('delete_article', async (value) => {
       client.query("DELETE FROM public.articles WHERE id =" + value + "");
@@ -42,22 +109,22 @@
 
     socket.on('co', async (value) => {
       console.log('ok')
-      if(value == "pass='admin'"){
+      if (value == "pass='admin'") {
         console.log('administrateur connecter')
-     
-         client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
+
+        client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
           dataTable = []
           if (err) throw err;
           for (let row of res.rows) {
-    
+
             let buffTitre = Buffer.from(row.titre, 'base64');
             let titre = buffTitre.toString('utf-8');
             let buff = Buffer.from(row.paragraphe, 'base64');
             let paragraphe = buff.toString('utf-8');
             let like = row.like
             //  console.log(text);
-            let cat = row.categorie    
-            console.log(cat)            
+            let cat = row.categorie
+            console.log(cat)
             //  console.log(text);
             dataRow = [row.id, like, titre, paragraphe, cat]
             dataTable.push(dataRow)
@@ -65,38 +132,38 @@
           socket.emit('datAmin', dataTable)
           console.log('send data to admin')
         })
-    }
+      }
     });
 
     socket.on('session', async (value) => {
       console.log("ok")
-        if(value[0] == "loustyveldidier88@gmail.com" && value[1] == "admin"){
-            console.log('administrateur connecter')
-           
-             socket.emit('coockie', "pass='admin'");
-             client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
-              dataTable = []
-              if (err) throw err;
-              for (let row of res.rows) {
-        
-                let buffTitre = Buffer.from(row.titre, 'base64');
-                let titre = buffTitre.toString('utf-8');
-                let buff = Buffer.from(row.paragraphe, 'base64');
-                let paragraphe = buff.toString('utf-8');
-                let like = row.like
-                //  console.log(text);
-                let cat = row.categorie    
-                console.log(cat)            
-                //  console.log(text);
-                dataRow = [row.id, like, titre, paragraphe, cat]
-                dataTable.push(dataRow)
-              }
-              socket.emit('datAmin', dataTable)
-              console.log('send data to admin')
-            })
-        }
-        
-    
+      if (value[0] == "loustyveldidier88@gmail.com" && value[1] == "admin") {
+        console.log('administrateur connecter')
+
+        socket.emit('coockie', "pass='admin'");
+        client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
+          dataTable = []
+          if (err) throw err;
+          for (let row of res.rows) {
+
+            let buffTitre = Buffer.from(row.titre, 'base64');
+            let titre = buffTitre.toString('utf-8');
+            let buff = Buffer.from(row.paragraphe, 'base64');
+            let paragraphe = buff.toString('utf-8');
+            let like = row.like
+            //  console.log(text);
+            let cat = row.categorie
+            console.log(cat)
+            //  console.log(text);
+            dataRow = [row.id, like, titre, paragraphe, cat]
+            dataTable.push(dataRow)
+          }
+          socket.emit('datAmin', dataTable)
+          console.log('send data to admin')
+        })
+      }
+
+
     });
 
     client.query('SELECT * FROM public.articles  ORDER BY "like" DESC;', (err, res) => {
@@ -111,8 +178,8 @@
         let paragraphe = buff.toString('utf-8');
         let like = row.like
         //  console.log(text);
-        let cat = row.categorie    
-        console.log(cat)            
+        let cat = row.categorie
+        console.log(cat)
         //  console.log(text);
         dataRow = [row.id, like, titre, paragraphe, cat]
         dataTable.push(dataRow)
@@ -120,7 +187,7 @@
       socket.emit('data', dataTable)
       console.log('send data to client')
     })
-    
+
     socket.on('send', async (value) => {
       titre = Buffer.from(value[0]).toString('base64')
       paragraphe = Buffer.from(value[1]).toString('base64')
@@ -150,7 +217,7 @@
       plus = value[1]
       client.query("UPDATE public.articles SET \"like\"=" + plus + " WHERE id =" + id + "");
     });
-  
+
   })
 
 
