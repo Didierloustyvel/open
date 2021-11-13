@@ -2,6 +2,7 @@
     <div id="titre" contentEditable="true">Entrer votre titre</div>
     <div id="paragraphe" contentEditable="true">Entrer votre texte</div>
     <button id="send" class="bt" onclick="send()">Envoyer</button>
+    <button id="send" class="bt" onclick="video()">video</button>
 </div>
 
 <script>
@@ -10,8 +11,12 @@
         paragraphe = document.querySelector('#paragraphe').innerHTML
         like = 0;
         selected = document.querySelector('[role="selected"]').textContent
-        value = [titre,paragraphe,like,selected]
+        value = [titre, paragraphe, like, selected]
         socket.emit('send', value);
         location.reload()
+    }
+
+    function video() {
+        document.querySelector('#paragraphe').innerHTML = document.querySelector('#paragraphe').textContent 
     }
 </script>
